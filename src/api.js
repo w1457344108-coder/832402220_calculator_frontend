@@ -3,7 +3,7 @@ async function request(path, options = {}) {
   const response = await fetch(`${base}${path}`, { headers: { 'Content-Type': 'application/json' }, ...options })
   if (!response.ok) {
     const body = await response.json().catch(() => ({}))
-    throw body.detail || { code: 'NETWORK', message: { zh: '请求失败', en: 'Request failed' } }
+    throw body.detail || (body.code && body.message ? body : { code: 'NETWORK', message: { zh: '请求失败', en: 'Request failed' } })
   }
   return response.status === 204 ? null : response.json()
 }
