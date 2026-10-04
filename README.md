@@ -9,6 +9,8 @@ Vue 3 + Vite frontend for the separated calculator assignment. It provides a sim
 
 The frontend is deployed on Vercel. The backend is a Render service backed by Neon PostgreSQL. Because the free backend service may sleep while idle, the first calculation after inactivity can take longer; retry after the service wakes if necessary.
 
+The production deployment is connected to the `main` branch of the private GitHub repository.
+
 ## Architecture
 
 ```text
