@@ -32,6 +32,7 @@ The browser stores no database credentials. `VITE_API_BASE_URL` selects the HTTP
 | `src/App.vue` | Calculator controls, bilingual labels, loading/error state, and history list |
 | `src/api.js` | Small `fetch` wrapper for calculate, list, and delete requests |
 | `src/i18n.js` | Chinese/English UI strings |
+| `src/history.js` | Client-side expression search for loaded history |
 | `src/style.css` | Layout and visual styling |
 | `src/main.js` | Vue application entry point |
 | `vite.config.js` | Vite + Vue plugin configuration |
@@ -69,7 +70,7 @@ Open the URL printed by Vite, normally `http://localhost:5173`. The backend must
 ```bash
 npm run dev       # local development server
 npm run build     # production build in dist/
-npm test          # API-client regression tests
+npm test          # API-client, localization, and history-search regression tests
 npm run preview   # serve the production build locally
 ```
 
@@ -91,6 +92,12 @@ On success, the returned `result` is displayed and the history is refreshed with
 This basic assignment has no login: every visitor sees the same database history. Refreshing the browser preserves history, while the current expression and language choice are UI state.
 
 The parser accepts decimal numbers, parentheses, `+ - * /`, and unary signs. It rejects arbitrary code and unsupported characters. The backend repository's README contains the full status-code and response contract.
+
+## History search
+
+The search field filters the complete array already returned by `GET /api/history` in the browser. It trims surrounding whitespace and compares expression substrings without letter-case differences; for example, `10/2` matches `10/2+7`. Clearing the search restores all loaded records, and the count badge always shows the total loaded history.
+
+Searching makes no API request and does not change stored records. This is client-side filtering, not SQL search or server pagination. An empty history and a search with no matches show separate bilingual messages.
 
 ## Deploying on Vercel
 
