@@ -9,7 +9,7 @@ Vue 3 + Vite frontend for the separated calculator assignment. It provides a sim
 
 The frontend is deployed on Vercel. The backend is a Render service backed by Neon PostgreSQL. Because the free backend service may sleep while idle, the first calculation after inactivity can take longer; retry after the service wakes if necessary.
 
-The production deployment is connected to the `main` branch of the private GitHub repository.
+The production deployment is connected to the `main` branch of this public GitHub repository.
 
 ## Architecture
 
@@ -138,4 +138,4 @@ Redeploy after changing the environment variable because Vite embeds it into the
 - `1/0` displays a controlled bilingual error.
 - If the first request is slow, wait for the free Render service to wake and try again.
 
-The repository may stay private. Invite the teacher's GitHub account as a collaborator when review access is needed (or grant the Read role for an organization repository). Never put database credentials in this frontend repository; `VITE_API_BASE_URL` is a public URL, while database secrets belong only in Render/Neon configuration. `.env` is ignored by Git; commit only the safe `.env.example` template.
+The repository is public for assignment review. Never put database credentials in this frontend repository; `VITE_API_BASE_URL` is a public URL, while database secrets belong only in Render/Neon configuration. `.env` is ignored by Git; commit only the safe `.env.example` template.
