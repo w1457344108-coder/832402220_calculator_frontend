@@ -21,7 +21,8 @@
   --shadow: #1e293b14;
   --focus: #6d9bd6;
   --background-image: url('/backgrounds/green-algebra-chalkboard-advanced.png');
-  --backdrop: rgb(238 242 246 / 76%);
+  --background-opacity: .46;
+  --backdrop: rgb(238 242 246 / 68%);
 }
 
 :root[data-theme="dark"] {
@@ -43,7 +44,8 @@
   --button-bg: rgb(30 45 66 / 84%);
   --shadow: #0000003d;
   --focus: #8fb7e9;
-  --backdrop: rgb(17 24 39 / 80%);
+  --background-opacity: .52;
+  --backdrop: rgb(17 24 39 / 68%);
 }
 
 * { box-sizing: border-box; }
@@ -72,7 +74,7 @@ body::before {
   background-position: center;
   background-size: cover;
   filter: blur(18px) saturate(.78);
-  opacity: .34;
+  opacity: var(--background-opacity);
   transform: scale(1.06);
 }
 
