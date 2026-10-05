@@ -99,6 +99,20 @@ The search field filters the complete array already returned by `GET /api/histor
 
 Searching makes no API request and does not change stored records. This is client-side filtering, not SQL search or server pagination. An empty history and a search with no matches show separate bilingual messages.
 
+## Keyboard shortcuts
+
+When focus is outside an editable control, the calculator also accepts these shortcuts:
+
+| Key | Action |
+| --- | --- |
+| `0`–`9`, `.`, `+`, `-`, `(`, `)` | Append to the expression |
+| `*`, `/` | Append `×` or `÷` |
+| `Enter`, `=` | Calculate once (a held key does not submit repeatedly) |
+| `Backspace` | Remove the last character |
+| `Escape` | Clear the expression and result |
+
+The history search field, other text controls, content-editable areas, and modified shortcuts using Ctrl, Command, or Alt keep their normal browser behavior. Enter and Space also keep native activation for focused buttons.
+
 ## Deploying on Vercel
 
 Create a Vercel project from this frontend repository. Leave Root Directory at the repository root because `package.json` is already there. Select a supported Node.js version and use:

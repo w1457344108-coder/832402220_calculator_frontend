@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { calculate, deleteHistory, getHistory } from './api'
 import { localizedMessage, messages } from './i18n'
 import { filterHistory } from './history'
+import { getKeyboardAction } from './keyboard'
 const lang = ref('zh'), expression = ref(''), result = ref(''), error = ref(''), loading = ref(false), history = ref([])
 const searchTerm = ref('')
 const t = computed(() => messages[lang.value])
@@ -12,9 +13,22 @@ function append(value) { expression.value += value }
 function clear() { expression.value = ''; result.value = ''; error.value = '' }
 function backspace() { expression.value = expression.value.slice(0, -1) }
 async function loadHistory() { history.value = await getHistory() }
-async function submit() { error.value = null; result.value = ''; loading.value = true; try { const body = expression.value.replaceAll('×', '*').replaceAll('÷', '/'); const response = await calculate(body); result.value = response.result; await loadHistory() } catch (e) { error.value = e } finally { loading.value = false } }
+async function submit() { if (loading.value) return; error.value = null; result.value = ''; loading.value = true; try { const body = expression.value.replaceAll('×', '*').replaceAll('÷', '/'); const response = await calculate(body); result.value = response.result; await loadHistory() } catch (e) { error.value = e } finally { loading.value = false } }
 async function remove(id) { await deleteHistory(id); await loadHistory() }
-onMounted(loadHistory)
+function handleKeydown(event) {
+  const action = getKeyboardAction(event)
+  if (!action) return
+  event.preventDefault()
+  if (action.type === 'append') append(action.value)
+  else if (action.type === 'submit') submit()
+  else if (action.type === 'backspace') backspace()
+  else if (action.type === 'clear') clear()
+}
+onMounted(() => {
+  loadHistory()
+  window.addEventListener('keydown', handleKeydown)
+})
+onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
 </script>
 <template>
   <main class="page"><header><div><p class="eyebrow">SOFTWARE ENGINEERING · 01</p><h1>{{ t.title }}</h1><p class="subtitle">{{ t.subtitle }}</p></div><button class="lang" @click="lang = lang === 'zh' ? 'en' : 'zh'">{{ t.language }}</button></header>
