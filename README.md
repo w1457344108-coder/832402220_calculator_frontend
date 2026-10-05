@@ -38,6 +38,10 @@ The browser stores no database credentials. `VITE_API_BASE_URL` selects the HTTP
 | `vite.config.js` | Vite + Vue plugin configuration |
 | `.env.example` | Public API-origin template; copy to `.env` for local development |
 
+## Theme scope
+
+The frontend provides exactly two fixed visual themes: Light and Dark. The theme button switches between them for the current page and does not persist the selection. Theme changes are frontend-only visual behavior; they do not change backend, database, API, or deployment settings.
+
 ## Requirements and local setup
 
 - Node.js 22.12 or newer is recommended (the locked Vite version also supports Node 20.19+ in the 20.x line)
