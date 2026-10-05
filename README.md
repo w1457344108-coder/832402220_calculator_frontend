@@ -70,7 +70,7 @@ Open the URL printed by Vite, normally `http://localhost:5173`. The backend must
 ```bash
 npm run dev       # local development server
 npm run build     # production build in dist/
-npm test          # API-client, localization, and history-search regression tests
+npm test          # API-client, localization, history-search, and keyboard regression tests
 npm run preview   # serve the production build locally
 ```
 
