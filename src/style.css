@@ -3,9 +3,9 @@
   color: var(--text);
   background: var(--page-bg);
   --page-bg: #eef2f6;
-  --surface: #ffffff;
-  --surface-soft: #f7f9fb;
-  --surface-hover: #e7edf4;
+  --surface: rgb(255 255 255 / 82%);
+  --surface-soft: rgb(247 249 251 / 82%);
+  --surface-hover: rgb(231 237 244 / 92%);
   --display-bg: #172a46;
   --display-text: #ffffff;
   --text: #1e293b;
@@ -17,16 +17,18 @@
   --accent-button: #315b9e;
   --accent-soft: #e4ecf7;
   --error: #b42318;
-  --button-bg: #ffffff;
+  --button-bg: rgb(255 255 255 / 78%);
   --shadow: #1e293b14;
   --focus: #6d9bd6;
+  --background-image: url('/backgrounds/green-algebra-chalkboard-advanced.png');
+  --backdrop: rgb(238 242 246 / 76%);
 }
 
 :root[data-theme="dark"] {
   --page-bg: #111827;
-  --surface: #182337;
-  --surface-soft: #1e293b;
-  --surface-hover: #273754;
+  --surface: rgb(24 35 55 / 86%);
+  --surface-soft: rgb(30 41 59 / 84%);
+  --surface-hover: rgb(39 55 84 / 94%);
   --display-bg: #0b1424;
   --display-text: #f5f7fa;
   --text: #e5edf7;
@@ -38,27 +40,56 @@
   --accent-button: #456ea8;
   --accent-soft: #243b5e;
   --error: #f3a6a0;
-  --button-bg: #1e2d42;
+  --button-bg: rgb(30 45 66 / 84%);
   --shadow: #0000003d;
   --focus: #8fb7e9;
+  --backdrop: rgb(17 24 39 / 80%);
 }
 
 * { box-sizing: border-box; }
 
 body {
+  position: relative;
   min-height: 100vh;
   margin: 0;
   color: var(--text);
   background: var(--page-bg);
+  isolation: isolate;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  content: '';
+}
+
+body::before {
+  z-index: -2;
+  background-image: var(--background-image);
+  background-position: center;
+  background-size: cover;
+  filter: blur(18px) saturate(.78);
+  opacity: .34;
+  transform: scale(1.06);
+}
+
+body::after {
+  z-index: -1;
+  background: var(--backdrop);
 }
 
 .page {
+  position: relative;
+  z-index: 0;
   max-width: 1120px;
   min-height: 100vh;
   margin: 0 auto;
   padding: 48px 24px;
   color: var(--text);
-  background: var(--page-bg);
+  background: transparent;
 }
 
 header {
@@ -119,6 +150,8 @@ h1, h2, p { margin: 0; }
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   box-shadow: 0 10px 30px var(--shadow);
 }
 

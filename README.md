@@ -42,6 +42,8 @@ The browser stores no database credentials. `VITE_API_BASE_URL` selects the HTTP
 
 The frontend provides exactly two fixed visual themes: Light and Dark. The theme button switches between them for the current page and does not persist the selection. Theme changes are frontend-only visual behavior; they do not change backend, database, API, or deployment settings.
 
+The page uses the local `public/backgrounds/green-algebra-chalkboard-advanced.png` image as a decorative mathematics backdrop. CSS applies a soft blur, light desaturation, and a theme-specific overlay before the image is shown behind the panels. The image is intentionally decorative: all readable content remains in the solid or translucent calculator panels, and no external image request is required at runtime.
+
 ## Requirements and local setup
 
 - Node.js 22.12 or newer is recommended (the locked Vite version also supports Node 20.19+ in the 20.x line)
