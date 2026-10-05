@@ -28,6 +28,8 @@ test('ignores repeated submit and modified browser shortcuts', () => {
   assert.equal(getKeyboardAction(event('f', { ctrlKey: true })), null)
   assert.equal(getKeyboardAction(event('s', { metaKey: true })), null)
   assert.equal(getKeyboardAction(event('8', { altKey: true })), null)
+  assert.equal(getKeyboardAction(event('Enter', { isComposing: true })), null)
+  assert.equal(getKeyboardAction(event('Enter', { keyCode: 229 })), null)
 })
 
 test('does not intercept editable controls or button activation', () => {

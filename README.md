@@ -42,7 +42,7 @@ The browser stores no database credentials. `VITE_API_BASE_URL` selects the HTTP
 
 The frontend provides exactly two fixed visual themes: Light and Dark. The theme button switches between them for the current page and does not persist the selection. Theme changes are frontend-only visual behavior; they do not change backend, database, API, or deployment settings.
 
-The page uses the local `public/backgrounds/green-algebra-chalkboard-advanced.png` image as a decorative mathematics backdrop. CSS applies a soft blur, light desaturation, and a theme-specific overlay before the image is shown behind the panels. The image is intentionally decorative: all readable content remains in the solid or translucent calculator panels, and no external image request is required at runtime.
+The page uses the local `public/backgrounds/green-algebra-chalkboard-advanced.png` image as a decorative mathematics backdrop. CSS keeps the image layer opaque, applies a 0.35px blur with mild contrast and saturation adjustments, and uses a theme-specific overlay (34% in light mode, 36% in dark mode). The image is intentionally decorative: all readable content remains in the solid or translucent calculator panels, and no external image request is required at runtime.
 
 ## Requirements and local setup
 
@@ -84,7 +84,7 @@ The generated `dist/` directory is a build artifact and is ignored by Git.
 
 ## User flow and API calls
 
-The keypad appends supported symbols to the expression. `×` and `÷` are converted to `*` and `/` before the request. On submit, the frontend calls:
+The expression is an editable text field. Keypad and scientific buttons insert at the current cursor or replace the selected text, so expressions can be corrected in place. `×` and `÷` are converted to `*` and `/` before the request; `π` is sent unchanged for the backend parser. On submit, the frontend calls:
 
 ```http
 POST /api/calculate
@@ -97,7 +97,9 @@ On success, the returned `result` is displayed and the history is refreshed with
 
 This basic assignment has no login: every visitor sees the same database history. Refreshing the browser preserves history, while the current expression and language choice are UI state.
 
-The parser accepts decimal numbers, parentheses, `+ - * /`, and unary signs. It rejects arbitrary code and unsupported characters. The backend repository's README contains the full status-code and response contract.
+The parser accepts decimal numbers, parentheses, `+ - * /`, unary signs, right-associative `^`, scientific notation such as `1.2e-3`, constants `pi`/`π`/`e`, and the fixed single-argument functions `sin`, `cos`, `tan`, `sqrt`, `ln`, `log10`, and `exp`. Trigonometric functions use radians (the page shows `RAD / 弧度`); convert degrees explicitly, for example `30*π/180`. The parser rejects arbitrary code and unsupported characters. The backend repository's README contains the full status-code and response contract.
+
+The scientific toolbar inserts `π`, `e`, `^`, `sqrt(`, and the supported function names. Function buttons insert an opening parenthesis; close it with the `)` key. Results remain strings in the UI, so large or precise backend results are not rounded through JavaScript `Number`.
 
 ## History search
 
@@ -111,13 +113,13 @@ When focus is outside an editable control, the calculator also accepts these sho
 
 | Key | Action |
 | --- | --- |
-| `0`–`9`, `.`, `+`, `-`, `(`, `)` | Append to the expression |
-| `*`, `/` | Append `×` or `÷` |
+| `0`–`9`, `.`, `+`, `-`, `(`, `)` | Insert at the cursor or replace the selection |
+| `*`, `/` | Insert `×` or `÷` |
 | `Enter`, `=` | Calculate once (a held key does not submit repeatedly) |
-| `Backspace` | Remove the last character |
+| `Backspace` | Use native input editing; the on-screen button removes the selection or previous character |
 | `Escape` | Clear the expression and result |
 
-The history search field, other text controls, content-editable areas, and modified shortcuts using Ctrl, Command, or Alt keep their normal browser behavior. Enter and Space also keep native activation for focused buttons.
+The history search field, other text controls, content-editable areas, IME composition, and modified shortcuts using Ctrl, Command, or Alt keep their normal browser behavior. Enter and Space also keep native activation for focused buttons. While a calculation request is pending, expression editing, keypad buttons, clear, and backspace are disabled; language, theme, and history browsing remain available. HTTP 422 request-validation responses show a bilingual input error, while network failures retain the service-unavailable message.
 
 ## Deploying on Vercel
 

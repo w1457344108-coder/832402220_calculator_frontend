@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { calculate, deleteHistory, getHistory } from './api'
 import { localizedMessage, messages } from './i18n'
 import { filterHistory } from './history'
@@ -8,6 +8,7 @@ import { getKeyboardAction } from './keyboard'
 const lang = ref('zh')
 const theme = ref('light')
 const expression = ref('')
+const expressionInput = ref(null)
 const result = ref('')
 const error = ref('')
 const loading = ref(false)
@@ -23,10 +24,71 @@ const paginatedHistory = computed(() => {
   return filteredHistory.value.slice(start, start + pageSize)
 })
 const buttons = ['7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '-', '0', '.', '(', ')', '+']
+const scientificButtons = [
+  { label: 'π', value: 'π' },
+  { label: 'e', value: 'e' },
+  { label: 'xʸ', value: '^' },
+  { label: '√', value: 'sqrt(' },
+  { label: 'sin', value: 'sin(' },
+  { label: 'cos', value: 'cos(' },
+  { label: 'tan', value: 'tan(' },
+  { label: 'ln', value: 'ln(' },
+  { label: 'log₁₀', value: 'log10(' },
+  { label: 'exp', value: 'exp(' },
+]
 
-function append(value) { expression.value += value }
-function clear() { expression.value = ''; result.value = ''; error.value = '' }
-function backspace() { expression.value = expression.value.slice(0, -1) }
+function clearEditedState() {
+  result.value = ''
+  error.value = ''
+}
+
+function selection() {
+  const input = expressionInput.value
+  if (!input || input.selectionStart === null || input.selectionEnd === null) {
+    return { start: expression.value.length, end: expression.value.length }
+  }
+  return { start: input.selectionStart, end: input.selectionEnd }
+}
+
+function updateExpression(value, start, end = start) {
+  expression.value = value
+  nextTick(() => {
+    const input = expressionInput.value
+    if (!input || loading.value) return
+    input.focus()
+    input.setSelectionRange(start, end)
+  })
+}
+
+function append(value) {
+  if (loading.value) return
+  const { start, end } = selection()
+  const nextExpression = expression.value.slice(0, start) + value + expression.value.slice(end)
+  clearEditedState()
+  updateExpression(nextExpression, start + value.length)
+}
+
+function handleExpressionInput() {
+  clearEditedState()
+}
+
+function clear() {
+  if (loading.value) return
+  expression.value = ''
+  result.value = ''
+  error.value = ''
+  nextTick(() => expressionInput.value?.focus())
+}
+
+function backspace() {
+  if (loading.value) return
+  const { start, end } = selection()
+  if (start === 0 && end === 0) return
+  const deleteStart = start === end ? Math.max(0, start - 1) : start
+  clearEditedState()
+  updateExpression(expression.value.slice(0, deleteStart) + expression.value.slice(end), deleteStart)
+}
+
 function toggleTheme() { theme.value = theme.value === 'light' ? 'dark' : 'light' }
 async function loadHistory() { history.value = await getHistory() }
 async function submit() {
@@ -46,10 +108,23 @@ async function submit() {
   }
 }
 async function remove(id) { await deleteHistory(id); await loadHistory() }
+
+function handleExpressionKeydown(event) {
+  if (event.isComposing || event.keyCode === 229 || event.ctrlKey || event.metaKey || event.altKey) return
+  if ((event.key === 'Enter' || event.key === '=') && !event.repeat) {
+    event.preventDefault()
+    submit()
+  } else if (event.key === 'Escape') {
+    event.preventDefault()
+    clear()
+  }
+}
+
 function handleKeydown(event) {
   const action = getKeyboardAction(event)
   if (!action) return
   event.preventDefault()
+  if (loading.value) return
   if (action.type === 'append') append(action.value)
   else if (action.type === 'submit') submit()
   else if (action.type === 'backspace') backspace()
@@ -98,16 +173,45 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
     <section class="workspace">
       <div class="calculator panel">
         <div class="display">
-          <span>{{ expression || '0' }}</span>
+          <label class="sr-only" for="expression-input">{{ t.expression }}</label>
+          <input
+            id="expression-input"
+            ref="expressionInput"
+            v-model="expression"
+            :placeholder="t.expressionPlaceholder"
+            :aria-label="t.expression"
+            :disabled="loading"
+            autocomplete="off"
+            inputmode="text"
+            spellcheck="false"
+            @input="handleExpressionInput"
+            @keydown="handleExpressionKeydown"
+          >
           <strong v-if="result">= {{ result }}</strong>
         </div>
         <p v-if="error" class="error">{{ localizedMessage(error, lang, t.network) }}</p>
         <div class="keys">
-          <button v-for="button in buttons" :key="button" type="button" @click="append(button)">{{ button }}</button>
+          <button v-for="button in buttons" :key="button" type="button" :disabled="loading" @click="append(button)">{{ button }}</button>
+        </div>
+        <div class="scientific-toolbar">
+          <div class="scientific-heading">
+            <span>{{ t.scientific }}</span>
+            <span class="angle-mode">{{ t.angleMode }}</span>
+          </div>
+          <div class="scientific-keys">
+            <button
+              v-for="button in scientificButtons"
+              :key="button.value"
+              type="button"
+              :disabled="loading"
+              :aria-label="`${button.label} ${t.insert}`"
+              @click="append(button.value)"
+            >{{ button.label }}</button>
+          </div>
         </div>
         <div class="actions">
-          <button type="button" @click="clear">{{ t.clear }}</button>
-          <button type="button" @click="backspace">{{ t.backspace }}</button>
+          <button type="button" :disabled="loading" @click="clear">{{ t.clear }}</button>
+          <button type="button" :disabled="loading" @click="backspace">{{ t.backspace }}</button>
           <button class="primary" type="button" :disabled="loading" @click="submit">{{ loading ? t.loading : t.calculate }}</button>
         </div>
       </div>

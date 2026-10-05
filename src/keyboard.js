@@ -12,8 +12,9 @@ function isEditableTarget(target) {
 }
 
 export function getKeyboardAction(event) {
-  const { key, repeat, ctrlKey, metaKey, altKey, target } = event
+  const { key, repeat, ctrlKey, metaKey, altKey, isComposing, keyCode, target } = event
   if (isEditableTarget(target) || ctrlKey || metaKey || altKey) return null
+  if (isComposing || keyCode === 229) return null
   if (nativeActivationTags.has(tagName(target)) && (key === 'Enter' || key === ' ' || key === 'Spacebar')) return null
 
   if (/^[0-9]$/.test(key) || operators.has(key)) {

@@ -36,6 +36,16 @@ test('calculate preserves errors inside a detail field', async () => {
   })
 })
 
+test('422 validation failures become bilingual input errors', async () => {
+  respond({ detail: [{ loc: ['body', 'expression'], msg: 'Field required' }] }, 422)
+  await assert.rejects(api.calculate(''), received => {
+    assert.equal(received.code, 'INVALID_INPUT')
+    assert.equal(received.message.zh, '输入格式无效，请检查表达式后重试')
+    assert.equal(received.message.en, 'Invalid input. Check the expression and try again')
+    return true
+  })
+})
+
 test('non-JSON failures use a bilingual fallback', async () => {
   globalThis.fetch = async () => new Response('Bad gateway', { status: 502 })
   await assert.rejects(api.calculate('1+2'), received => {
