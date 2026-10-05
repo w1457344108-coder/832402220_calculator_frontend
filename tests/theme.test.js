@@ -32,7 +32,7 @@ test('theme CSS defines light and dark palettes for the shared surfaces', () => 
 })
 
 test('theme CSS gives the primary action a dedicated button accent', () => {
-  assert.match(css, /--accent-button:\s*#ba5b38/)
-  assert.match(css, /:root\[data-theme=['"]dark['"]\][\s\S]*--accent-button:\s*#a94327/)
+  assert.match(css, /--accent-button:\s*#315b9e/)
+  assert.match(css, /:root\[data-theme=['"]dark['"]\][\s\S]*--accent-button:\s*#456ea8/)
   assert.match(css, /\.actions \.primary[\s\S]*background:\s*var\(--accent-button\)/)
 })

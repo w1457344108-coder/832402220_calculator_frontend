@@ -2,43 +2,45 @@
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text);
   background: var(--page-bg);
-  --page-bg: #f4f1ea;
+  --page-bg: #eef2f6;
   --surface: #ffffff;
-  --surface-soft: #faf8f4;
-  --surface-hover: #f2e7dc;
-  --display-bg: #17202a;
+  --surface-soft: #f7f9fb;
+  --surface-hover: #e7edf4;
+  --display-bg: #172a46;
   --display-text: #ffffff;
-  --text: #17202a;
-  --muted: #69727a;
-  --muted-light: #899199;
-  --border: #e3ddd3;
-  --border-subtle: #eee8df;
-  --accent: #ba5b38;
-  --accent-button: #ba5b38;
-  --accent-soft: #f2e7dc;
-  --error: #a5332d;
+  --text: #1e293b;
+  --muted: #64748b;
+  --muted-light: #8090a3;
+  --border: #d8e0e8;
+  --border-subtle: #e6ebf1;
+  --accent: #315b9e;
+  --accent-button: #315b9e;
+  --accent-soft: #e4ecf7;
+  --error: #b42318;
   --button-bg: #ffffff;
-  --shadow: #3a30220d;
+  --shadow: #1e293b14;
+  --focus: #6d9bd6;
 }
 
 :root[data-theme="dark"] {
-  --page-bg: #121a22;
-  --surface: #202b36;
-  --surface-soft: #273440;
-  --surface-hover: #344351;
-  --display-bg: #0b1117;
+  --page-bg: #111827;
+  --surface: #182337;
+  --surface-soft: #1e293b;
+  --surface-hover: #273754;
+  --display-bg: #0b1424;
   --display-text: #f5f7fa;
-  --text: #f1f5f9;
-  --muted: #b8c4cf;
-  --muted-light: #9eacb8;
-  --border: #40505e;
-  --border-subtle: #354452;
-  --accent: #f3b28b;
-  --accent-button: #a94327;
-  --accent-soft: #5b3b2e;
-  --error: #ff9d94;
-  --button-bg: #273440;
-  --shadow: #00000038;
+  --text: #e5edf7;
+  --muted: #9fb0c5;
+  --muted-light: #8294aa;
+  --border: #33445e;
+  --border-subtle: #2a3a52;
+  --accent: #8fb7e9;
+  --accent-button: #456ea8;
+  --accent-soft: #243b5e;
+  --error: #f3a6a0;
+  --button-bg: #1e2d42;
+  --shadow: #0000003d;
+  --focus: #8fb7e9;
 }
 
 * { box-sizing: border-box; }
@@ -89,6 +91,20 @@ h1, h2, p { margin: 0; }
   background: var(--button-bg);
   padding: 10px 14px;
   cursor: pointer;
+}
+
+.lang:hover,
+.theme-toggle:hover,
+.actions button:hover:not(.primary),
+.delete:hover,
+.pagination button:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+:where(button, input):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .workspace {
@@ -153,6 +169,10 @@ h1, h2, p { margin: 0; }
   border-color: var(--accent-button);
   color: var(--display-text);
   background: var(--accent-button);
+}
+
+.actions .primary:hover {
+  filter: brightness(.94);
 }
 
 .error { margin-top: 12px; color: var(--error); }
