@@ -13,8 +13,15 @@ const error = ref('')
 const loading = ref(false)
 const history = ref([])
 const searchTerm = ref('')
+const currentPage = ref(1)
+const pageSize = 5
 const t = computed(() => messages[lang.value])
 const filteredHistory = computed(() => filterHistory(history.value, searchTerm.value))
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredHistory.value.length / pageSize)))
+const paginatedHistory = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredHistory.value.slice(start, start + pageSize)
+})
 const buttons = ['7', '8', '9', '÷', '4', '5', '6', '×', '1', '2', '3', '-', '0', '.', '(', ')', '+']
 
 function append(value) { expression.value += value }
@@ -52,6 +59,12 @@ function handleKeydown(event) {
 watch(theme, (value) => {
   document.documentElement.dataset.theme = value
 }, { immediate: true })
+watch(searchTerm, () => {
+  currentPage.value = 1
+})
+watch(totalPages, (value) => {
+  if (currentPage.value > value) currentPage.value = value
+})
 
 onMounted(() => {
   loadHistory()
@@ -113,7 +126,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
         </div>
         <div v-if="history.length === 0" class="empty">{{ t.empty }}</div>
         <div v-else-if="filteredHistory.length === 0" class="empty">{{ t.noSearchResults }}</div>
-        <div v-for="item in filteredHistory" :key="item.id" class="record">
+        <div v-for="item in paginatedHistory" :key="item.id" class="record">
           <div>
             <b>{{ item.expression }}</b>
             <small>{{ item.created_at ? new Date(item.created_at).toLocaleString() : '' }}</small>
@@ -121,6 +134,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown))
           <strong>{{ item.result }}</strong>
           <button class="delete" type="button" :aria-label="`${t.delete}: ${item.expression}`" @click="remove(item.id)">{{ t.delete }}</button>
         </div>
+        <nav v-if="filteredHistory.length > pageSize" class="pagination" :aria-label="t.historyPagination">
+          <button type="button" :disabled="currentPage === 1" @click="currentPage -= 1">{{ t.previousPage }}</button>
+          <span aria-live="polite">{{ currentPage }} / {{ totalPages }}</span>
+          <button type="button" :disabled="currentPage === totalPages" @click="currentPage += 1">{{ t.nextPage }}</button>
+        </nav>
       </section>
     </section>
   </main>

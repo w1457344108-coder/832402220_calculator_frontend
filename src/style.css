@@ -211,6 +211,37 @@ h1, h2, p { margin: 0; }
 .record strong { color: var(--accent); }
 .delete { padding: 6px 8px; font-size: 12px; }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.pagination button {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--button-bg);
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  color: var(--muted-light);
+  background: var(--surface-soft);
+  cursor: not-allowed;
+}
+
+.pagination span {
+  min-width: 48px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
 @media (max-width: 720px) {
   .page { padding: 28px 16px; }
   .workspace { grid-template-columns: 1fr; }
