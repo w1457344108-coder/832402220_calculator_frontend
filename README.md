@@ -1,92 +1,93 @@
-# 832402220 Calculator Frontend
+# 832402220 计算器前端
 
-Vue 3 + Vite frontend for the separated calculator assignment. It provides a simple bilingual calculator UI, sends expressions to the FastAPI backend, and displays the PostgreSQL-backed calculation history returned by that API.
+**中文** | [English](README.en.md)
 
-## Online application
+基于 Vue 3 + Vite 的前后端分离计算器前端，提供中英文计算器、进制转换和单位换算界面。计算与转换由 FastAPI 后端完成，成功结果共用 PostgreSQL 持久化历史记录。
 
-- Public URL: <https://832402220-calculator-frontend.vercel.app>
-- Backend API: <https://eight32402220-calculator-backend.onrender.com>
+## 在线访问
 
-The frontend is deployed on Vercel. The backend is a Render service backed by Neon PostgreSQL. Because the free backend service may sleep while idle, the first calculation after inactivity can take longer; retry after the service wakes if necessary.
+- 前端：<https://832402220-calculator-frontend.vercel.app>
+- 后端 API：<https://eight32402220-calculator-backend.onrender.com>
+- 后端源码与接口说明：[832402220_calculator_backend](https://github.com/w1457344108-coder/832402220_calculator_backend)
 
-The production deployment is connected to the `main` branch of this public GitHub repository.
+前端部署在 Vercel，后端部署在 Render，数据库为 Neon PostgreSQL。Render 免费实例空闲后可能休眠，首次请求需要等待服务唤醒；必要时等待后重试。Vercel 生产部署关联本仓库的 `main` 分支。
 
-## Architecture
+## 架构
 
 ```text
-Browser (Vue 3 + Vite)
-        │ fetch() with JSON
+浏览器（Vue 3 + Vite）
+        │ HTTPS / JSON
         ▼
-FastAPI backend on Render
-        │
+FastAPI 后端（Render）
+        │ SQLAlchemy + psycopg
         ▼
 Neon PostgreSQL
 ```
 
-The browser stores no database credentials. `VITE_API_BASE_URL` selects the HTTP API origin at build time; all calculation and history persistence stays in the backend.
+浏览器通过 HTTP API 提交请求，不保存数据库凭据。`VITE_API_BASE_URL` 在构建时确定后端地址；表达式计算、转换和历史持久化均由后端负责。
 
-## Directory guide
+## 目录说明
 
-| Path | Role |
+| 路径 | 用途 |
 | --- | --- |
-| `src/App.vue` | Calculator controls, bilingual labels, loading/error state, and history list |
-| `src/api.js` | Small `fetch` wrapper for calculate, list, and delete requests |
-| `src/i18n.js` | Chinese/English UI strings |
-| `src/history.js` | Client-side expression search for loaded history |
-| `src/style.css` | Layout and visual styling |
-| `src/main.js` | Vue application entry point |
-| `vite.config.js` | Vite + Vue plugin configuration |
-| `.env.example` | Public API-origin template; copy to `.env` for local development |
+| `src/App.vue` | 功能页签、计算器、语言与主题切换、状态提示及历史列表 |
+| `src/components/BaseConverter.vue` | 进制转换表单与进制说明表 |
+| `src/components/UnitConverter.vue` | 单位换算表单、类别选择与单位关系表 |
+| `src/api.js` | 计算、转换选项、转换和历史操作的 fetch 封装 |
+| `src/i18n.js` | 中英文界面文案 |
+| `src/history.js` | 已加载历史记录的前端搜索 |
+| `src/history-refresh.js` | 共享历史更新、请求顺序与删除状态管理 |
+| `src/keyboard.js` | 计算器键盘快捷键 |
+| `src/style.css` | 页面布局与样式 |
+| `src/main.js` | Vue 入口 |
+| `vite.config.js` | Vite 与 Vue 插件配置 |
+| `.env.example` | 本地 API 地址模板 |
 
-## Theme scope
+## 界面与主题
 
-The compact layout places the calculator on the left and calculation history on the right. Screens up to 720px wide stack the panels vertically. History uses pagination without an internal scrolling panel, and long expressions and results wrap within the available width.
+顶部提供“计算器”“进制转换”“单位换算”三个页签。计算器页面左侧显示输入与按键，右侧显示历史记录；窄屏下改为上下排列。历史每页显示 5 条，长表达式与结果按可用宽度换行。
 
-The frontend provides exactly two fixed visual themes: Light and Dark. The theme button switches between them for the current page and does not persist the selection. Theme changes are frontend-only visual behavior; they do not change backend, database, API, or deployment settings.
+页面支持浅色与深色主题，主题选择仅对当前页面有效，不持久化；语言可在中文和英文之间切换。背景使用本地 `public/backgrounds/green-algebra-chalkboard-advanced.png`，无需在运行时请求外部图片。背景为装饰层，正文位于计算器面板内。
 
-The page uses the local `public/backgrounds/green-algebra-chalkboard-advanced.png` image as a decorative mathematics backdrop. CSS keeps the image layer opaque, applies a 0.35px blur with mild contrast and saturation adjustments, and uses a theme-specific overlay (34% in light mode, 36% in dark mode). The image is intentionally decorative: all readable content remains in the solid or translucent calculator panels, and no external image request is required at runtime.
+## 环境要求与本地运行
 
-## Requirements and local setup
+- 推荐 Node.js 22.12 或更高版本；锁定的 Vite 也支持 Node 20.19+ 的 20.x 版本。
+- npm。
+- 可访问的后端服务，默认地址为 `http://localhost:8000`；后端配置见其 README。
 
-- Node.js 22.12 or newer is recommended (the locked Vite version also supports Node 20.19+ in the 20.x line)
-- npm
-- A running backend at `http://localhost:8000` (see the backend repository's README for PostgreSQL and API setup)
-
-Run these commands from this frontend repository's root directory to install dependencies and configure the API origin:
+在前端仓库根目录执行：
 
 ```bash
 npm install
 cp .env.example .env
 ```
 
-`.env` should contain only the public backend URL:
+在 `.env` 中填写公开的后端地址：
 
 ```dotenv
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
-Start the Vite development server:
+启动开发服务器：
 
 ```bash
 npm run dev
 ```
 
-Open the URL printed by Vite, normally `http://localhost:5173`. The backend must include that origin in its `CORS_ORIGINS` value. Vite reads `VITE_*` variables when the dev server starts, so restart it after changing `.env`.
+打开 Vite 输出的地址，通常为 `http://localhost:5173`。后端 `CORS_ORIGINS` 必须允许该来源。修改 `.env` 后需重启开发服务器。
 
-## Available commands
+| 命令 | 用途 |
+| --- | --- |
+| `npm run dev` | 本地开发 |
+| `npm run build` | 构建至 `dist/` |
+| `npm test` | 运行前端测试 |
+| `npm run preview` | 本地预览生产构建 |
 
-```bash
-npm run dev       # local development server
-npm run build     # production build in dist/
-npm test          # API-client, localization, history-search, and keyboard regression tests
-npm run preview   # serve the production build locally
-```
+`dist/` 是构建产物，已被 Git 忽略。
 
-The generated `dist/` directory is a build artifact and is ignored by Git.
+## 表达式与科学计算
 
-## User flow and API calls
-
-The expression is an editable text field. Keypad and scientific buttons insert at the current cursor or replace the selected text, so expressions can be corrected in place. `×` and `÷` are converted to `*` and `/` before the request; `π` is sent unchanged for the backend parser. On submit, the frontend calls:
+输入框可直接编辑，按键和科学计算按钮在光标处插入内容，或替换选中文本。前端将显示符号 `×`、`÷` 转为 `*`、`/` 后提交，`π` 保持不变：
 
 ```http
 POST /api/calculate
@@ -95,53 +96,97 @@ Content-Type: application/json
 {"expression":"(1+2)*3"}
 ```
 
-On success, the returned `result` is displayed and the history is refreshed with `GET /api/history`. Each history row can be deleted with `DELETE /api/history/{id}`. The backend returns bilingual error messages for invalid expressions and division by zero; the selected UI language determines which message is shown.
+后端支持小数、括号、四则运算、一元正负号、右结合乘方 `^`、科学记数法（如 `1.2e-3`）、常量 `pi`/`π`/`e`，以及固定单参数函数 `sin`、`cos`、`tan`、`sqrt`、`ln`、`log10`、`exp`。三角函数使用弧度；例如将 30 度写为 `30*π/180`。
 
-This basic assignment has no login: every visitor sees the same database history. Refreshing the browser preserves history, while the current expression and language choice are UI state.
+科学计算按钮插入函数名和左括号，需要用 `)` 补齐右括号。结果保持字符串形式，不通过 JavaScript `Number` 再次舍入。后端使用固定白名单解析器，拒绝任意代码。精度、范围与完整错误契约见后端 README。
 
-The parser accepts decimal numbers, parentheses, `+ - * /`, unary signs, right-associative `^`, scientific notation such as `1.2e-3`, constants `pi`/`π`/`e`, and the fixed single-argument functions `sin`, `cos`, `tan`, `sqrt`, `ln`, `log10`, and `exp`. Trigonometric functions use radians (the page shows `RAD / 弧度`); convert degrees explicitly, for example `30*π/180`. The parser rejects arbitrary code and unsupported characters. The backend repository's README contains the full status-code and response contract.
+计算成功后显示 `result`，并将返回的记录加入共享历史；页面打开或刷新时通过 `GET /api/history` 加载已保存记录。每条记录通过 `DELETE /api/history/{id}` 删除。业务错误按当前界面语言显示，422 请求校验失败显示输入格式提示，网络失败显示服务不可用提示。
 
-The scientific toolbar inserts `π`, `e`, `^`, `sqrt(`, and the supported function names. Function buttons insert an opening parenthesis; close it with the `)` key. Results remain strings in the UI, so large or precise backend results are not rounded through JavaScript `Number`.
+## 进制转换
 
-## History search
+选择来源与目标进制（2、8、10、16），输入整数后点击“转换”。示例：十进制 `255` 转十六进制得到 `FF`；十六进制 `-ff` 转十进制得到 `-255`。支持正负号，十六进制输入接受大小写，输出使用大写字母。说明表列出各进制可用数字与示例。
 
-The search field filters the complete array already returned by `GET /api/history` in the browser. It trims surrounding whitespace and compares expression substrings without letter-case differences; for example, `10/2` matches `10/2+7`. Clearing the search restores all loaded records, and the count badge always shows the total loaded history.
+进制输入仅接受整数，不接受 `0b`、`0o`、`0x` 前缀、小数、表达式、科学记数法或不属于来源进制的数字。输入最多 400 字符，输出最多 200 字符；负数保留负号，不使用补码表示。
 
-Searching makes no API request and does not change stored records. This is client-side filtering, not SQL search or server pagination. An empty history and a search with no matches show separate bilingual messages.
+```http
+POST /api/convert/base
+Content-Type: application/json
 
-## Keyboard shortcuts
+{"value":"255","from_base":10,"to_base":16}
+```
 
-When focus is outside an editable control, the calculator also accepts these shortcuts:
+结果为 `"FF"`，保存的历史表达式为 `BASE 255 (10) → (16)`。
 
-| Key | Action |
+## 单位换算
+
+选择类别、来源单位和目标单位后提交，只支持同类别单位互转。系统共支持六类、28 种单位；切换类别时单位选项和关系表同步更新，温度表额外展示最低温度。
+
+| 类别 | 支持单位 | 示例 |
+| --- | --- | --- |
+| 长度 | nm、μm、mm、cm、m、km | 250 cm → 2.5 m |
+| 质量 | mg、g、kg、t | 1.5 kg → 1500 g |
+| 面积 | mm²、cm²、m²、ha、km² | 2 m² → 20000 cm² |
+| 体积 | mL、cm³、L、dm³、m³ | 1.25 L → 1250 mL |
+| 时间 | ms、s、min、h、d | 1.5 h → 90 min |
+| 温度 | °C、°F、K | 0 °C → 32 °F |
+
+数值以字符串提交，支持带正负号的小数和科学记数法（如 `1.2e-3`），不接受算术表达式。后端使用精确有理数完成换算，最后一次舍入至最多 50 位有效数字；发生精度损失时显示 `≈`，精确结果没有该标记。输入最多 100 字符、50 位有效数字，非零数值的十进制指数限制在 −10000 至 10000，结果最多 200 字符。
+
+```http
+POST /api/convert/unit
+Content-Type: application/json
+
+{"category":"length","value":"250","from_unit":"cm","to_unit":"m"}
+```
+
+API 返回 `"2.5"`，界面显示 **2.5 m**，保存的历史表达式为 `UNIT 250 cm → m`。界面的 μm、m²、cm²、mL、L、°C、°F、K 对应 API 标识 `um`、`m2`、`cm2`、`ml`、`l`、`c`、`f`、`k`；完整标识见后端接口说明。
+
+温度换算针对绝对温度；低于绝对零度（−273.15 °C、−459.67 °F 或 0 K）的输入会被拒绝，失败不保存历史。`t` 表示公吨，`nm` 表示纳米；质量不换算为力，1 天按 24 小时计算。
+
+两种转换的类别、单位中英文名称、换算关系和最低温度均来自 `GET /api/convert/options`。选项加载失败时显示错误与重试按钮；修改数值、类别或来源/目标单位会清除旧结果。
+
+## 历史记录与搜索
+
+成功的表达式计算、进制转换和单位换算保存到同一张后端历史表。切回“计算器”页签即可查看、搜索、分页和删除。搜索 `BASE` 或 `UNIT` 可找到转换记录，刷新后记录仍从后端数据库加载。
+
+搜索在浏览器中对已加载的完整历史数组进行表达式子串匹配，忽略字母大小写和搜索词首尾空白。清空搜索恢复所有记录，数量徽标显示已加载历史总数。搜索与每页 5 条的分页由前端完成；搜索不发送 API 请求，也不修改数据库。空历史和无搜索结果分别显示中英文提示。
+
+当前项目没有登录或用户隔离，所有访问者共享同一份历史记录。当前表达式、语言与主题选择为页面状态，刷新后不保留。
+
+## 键盘快捷键
+
+计算器页签中，当焦点不在其他可编辑控件上时支持：
+
+| 按键 | 操作 |
 | --- | --- |
-| `0`–`9`, `.`, `+`, `-`, `(`, `)` | Insert at the cursor or replace the selection |
-| `*`, `/` | Insert `×` or `÷` |
-| `Enter`, `=` | Calculate once (a held key does not submit repeatedly) |
-| `Backspace` | Use native input editing; the on-screen button removes the selection or previous character |
-| `Escape` | Clear the expression and result |
+| `0`–`9`、`.`、`+`、`-`、`(`、`)` | 在光标位置插入，或替换选中文本 |
+| `*`、`/` | 插入 `×`、`÷` |
+| `Enter`、`=` | 计算一次，长按不会重复提交 |
+| `Backspace` | 输入框保留原生编辑；屏幕按钮删除选中内容或前一个字符 |
+| `Escape` | 清空表达式与结果 |
 
-The history search field, other text controls, content-editable areas, IME composition, and modified shortcuts using Ctrl, Command, or Alt keep their normal browser behavior. Enter and Space also keep native activation for focused buttons. While a calculation request is pending, expression editing, keypad buttons, clear, and backspace are disabled; language, theme, and history browsing remain available. HTTP 422 request-validation responses show a bilingual input error, while network failures retain the service-unavailable message.
+历史搜索框等可编辑控件、输入法组合输入，以及带 Ctrl、Command、Alt 的快捷键保留原生行为。焦点在按钮时，Enter 和空格仍用于激活按钮。计算请求期间禁用表达式编辑和计算按键；语言、主题与历史浏览仍可使用。转换页签不会响应全局计算器按键。
 
-## Deploying on Vercel
+## 部署到 Vercel
 
-Create a Vercel project from this frontend repository. Leave Root Directory at the repository root because `package.json` is already there. Select a supported Node.js version and use:
+从前端 GitHub 仓库创建 Vercel 项目。`package.json` 位于仓库根目录，Root Directory 使用根目录，配置支持的 Node.js 版本：
 
-- Install command: `npm install` (or Vercel's default)
-- Build command: `npm run build`
-- Output directory: `dist`
-- Environment variable: `VITE_API_BASE_URL=https://eight32402220-calculator-backend.onrender.com`
+- 安装命令：`npm install`，或使用 Vercel 默认设置。
+- 构建命令：`npm run build`。
+- 输出目录：`dist`。
+- 环境变量：`VITE_API_BASE_URL=https://eight32402220-calculator-backend.onrender.com`。
 
-Redeploy after changing the environment variable because Vite embeds it into the static build. The Render backend must allow the final Vercel origin in its `CORS_ORIGINS` variable.
+环境变量会在 Vite 构建时写入静态文件，修改后需重新部署。后端 `CORS_ORIGINS` 必须允许最终 Vercel 域名。
 
-## Acceptance checklist
+## 验收检查
 
-- The public URL loads without a build error.
-- Calculating `1+2*3` displays `7`.
-- Switching between 中文 and English changes the visible labels; repeat a failing calculation to check the error in the selected language.
-- Refreshing the page retains history because it is loaded from the backend database.
-- Deleting a history row removes it from the list.
-- `1/0` displays a controlled bilingual error.
-- If the first request is slow, wait for the free Render service to wake and try again.
+- 在线页面正常加载，`1+2*3` 返回 `7`。
+- 中英文切换改变界面与错误提示；浅色、深色主题可切换。
+- 科学函数与常量可输入，三角函数按弧度计算。
+- 十进制 `255` 转十六进制返回 `FF`，二进制 `102` 显示输入错误。
+- 250 cm 转 m 返回 `2.5 m`，0 °C 转 °F 返回 `32 °F`。
+- 低于绝对零度的温度被拒绝，`1/0` 显示受控错误。
+- 刷新后计算和 `BASE`、`UNIT` 转换历史仍存在，搜索、分页和删除可用。
+- Render 休眠后首次请求较慢时，等待服务唤醒再重试。
 
-The repository is public for assignment review. Never put database credentials in this frontend repository; `VITE_API_BASE_URL` is a public URL, while database secrets belong only in Render/Neon configuration. `.env` is ignored by Git; commit only the safe `.env.example` template.
+仓库公开用于作业检查。数据库凭据只保存在后端或部署平台配置中；前端 `VITE_API_BASE_URL` 是公开地址。`.env` 已被 Git 忽略，仅提交安全的 `.env.example` 模板。
