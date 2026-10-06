@@ -9,9 +9,11 @@ test('the scientific help paragraph is removed from the page', () => {
   assert.doesNotMatch(app, /scientific-help|scientificHelp/)
 })
 
-test('calculator and history use a compact single-column flow', () => {
+test('calculator and history sit side by side on desktop and stack on narrow screens', () => {
   const workspace = css.match(/\.workspace\s*\{([^}]+)\}/)?.[1] || ''
-  assert.match(workspace, /grid-template-columns:\s*minmax\(0, 1fr\)/)
+  assert.match(workspace, /grid-template-columns:\s*minmax\(0, 1\.08fr\)\s+minmax\(0, \.92fr\)/)
+  const narrowScreen = css.slice(css.indexOf('@media (max-width: 720px)'))
+  assert.match(narrowScreen, /\.workspace\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\)/)
   assert.doesNotMatch(css, /(?:\.panel|\.history)[^{]*\{[^}]*overflow-(?:x|y|)\s*:/s)
 })
 

@@ -40,6 +40,8 @@ The browser stores no database credentials. `VITE_API_BASE_URL` selects the HTTP
 
 ## Theme scope
 
+The compact layout places the calculator on the left and calculation history on the right. Screens up to 720px wide stack the panels vertically. History uses pagination without an internal scrolling panel, and long expressions and results wrap within the available width.
+
 The frontend provides exactly two fixed visual themes: Light and Dark. The theme button switches between them for the current page and does not persist the selection. Theme changes are frontend-only visual behavior; they do not change backend, database, API, or deployment settings.
 
 The page uses the local `public/backgrounds/green-algebra-chalkboard-advanced.png` image as a decorative mathematics backdrop. CSS keeps the image layer opaque, applies a 0.35px blur with mild contrast and saturation adjustments, and uses a theme-specific overlay (34% in light mode, 36% in dark mode). The image is intentionally decorative: all readable content remains in the solid or translucent calculator panels, and no external image request is required at runtime.
