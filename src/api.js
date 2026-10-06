@@ -7,8 +7,8 @@ async function request(path, options = {}) {
       throw {
         code: 'INVALID_INPUT',
         message: {
-          zh: '输入格式无效，请检查表达式后重试',
-          en: 'Invalid input. Check the expression and try again',
+          zh: '输入格式无效，请检查输入后重试',
+          en: 'Invalid input. Check the input and try again',
         },
       }
     }
@@ -19,3 +19,6 @@ async function request(path, options = {}) {
 export const calculate = expression => request('/api/calculate', { method: 'POST', body: JSON.stringify({ expression }) })
 export const getHistory = () => request('/api/history')
 export const deleteHistory = id => request(`/api/history/${id}`, { method: 'DELETE' })
+export const getConversionOptions = () => request('/api/convert/options')
+export const convertBase = payload => request('/api/convert/base', { method: 'POST', body: JSON.stringify(payload) })
+export const convertUnit = payload => request('/api/convert/unit', { method: 'POST', body: JSON.stringify(payload) })
